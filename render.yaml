@@ -1,15 +1,10 @@
 services:
-  - name: app-prod
-    type: web
-    plan: standard
-    runtime: docker
-    healthCheckPath: /health
-    buildFilter:
-      paths:
-        - Dockerfile
-    build:
-      dockerfile: Dockerfile
-      target: bolt-ai-production
+  - type: web
+    name: bolt-ai-production
+    runtime: node
+    buildCommand: pnpm install && pnpm build
+    startCommand: pnpm run dockerstart
+    plan: starter
     autoDeploy: true
     envVars:
       - key: NODE_ENV
@@ -17,46 +12,40 @@ services:
       - key: PORT
         value: 5173
       - key: GROQ_API_KEY
-        sync: false
-      - key: HUGGINGFACE_API_KEY
-        sync: false
+        value: ${GROQ_API_KEY}
+      - key: HuggingFace_API_KEY
+        value: ${HuggingFace_API_KEY}
       - key: OPENAI_API_KEY
-        sync: false
+        value: ${OPENAI_API_KEY}
       - key: ANTHROPIC_API_KEY
-        sync: false
+        value: ${ANTHROPIC_API_KEY}
       - key: OPEN_ROUTER_API_KEY
-        sync: false
+        value: ${OPEN_ROUTER_API_KEY}
       - key: GOOGLE_GENERATIVE_AI_API_KEY
-        sync: false
+        value: ${GOOGLE_GENERATIVE_AI_API_KEY}
       - key: OLLAMA_API_BASE_URL
-        sync: false
+        value: ${OLLAMA_API_BASE_URL}
       - key: XAI_API_KEY
-        sync: false
+        value: ${XAI_API_KEY}
       - key: TOGETHER_API_KEY
-        sync: false
+        value: ${TOGETHER_API_KEY}
       - key: TOGETHER_API_BASE_URL
-        sync: false
+        value: ${TOGETHER_API_BASE_URL}
       - key: AWS_BEDROCK_CONFIG
-        sync: false
+        value: ${AWS_BEDROCK_CONFIG}
       - key: VITE_LOG_LEVEL
         value: debug
       - key: DEFAULT_NUM_CTX
-        value: "32768"
+        value: 32768
       - key: RUNNING_IN_DOCKER
         value: "true"
-
-  - name: app-dev
-    type: web
-    plan: standard
-    runtime: docker
-    healthCheckPath: /health
-    buildFilter:
-      paths:
-        - Dockerfile
-    build:
-      dockerfile: Dockerfile
-      target: bolt-ai-development
-    autoDeploy: false
+  - type: web
+    name: bolt-ai-development
+    runtime: node
+    buildCommand: pnpm install
+    startCommand: pnpm run dev --host 0.0.0.0
+    plan: starter
+    autoDeploy: true
     envVars:
       - key: NODE_ENV
         value: development
@@ -69,49 +58,42 @@ services:
       - key: VITE_HMR_PORT
         value: 5173
       - key: CHOKIDAR_USEPOLLING
-        value: true
+        value: "true"
       - key: WATCHPACK_POLLING
-        value: true
+        value: "true"
       - key: GROQ_API_KEY
-        fromSecret: GROQ_API_KEY
+        value: ${GROQ_API_KEY}
       - key: HuggingFace_API_KEY
-        fromSecret: HuggingFace_API_KEY
+        value: ${HuggingFace_API_KEY}
       - key: OPENAI_API_KEY
-        fromSecret: OPENAI_API_KEY
+        value: ${OPENAI_API_KEY}
       - key: ANTHROPIC_API_KEY
-        fromSecret: ANTHROPIC_API_KEY
+        value: ${ANTHROPIC_API_KEY}
       - key: OPEN_ROUTER_API_KEY
-        fromSecret: OPEN_ROUTER_API_KEY
-      - key: GOOGLE_GENERATIVE_AI_API_KEY
-        fromSecret: GOOGLE_GENERATIVE_AI_API_KEY
-      - key: OLLAMA_API_BASE_URL
-        fromSecret: OLLAMA_API_BASE_URL
+        value: ${OPEN_ROUTER_API_KEY}
       - key: XAI_API_KEY
-        fromSecret: XAI_API_KEY
+        value: ${XAI_API_KEY}
+      - key: GOOGLE_GENERATIVE_AI_API_KEY
+        value: ${GOOGLE_GENERATIVE_AI_API_KEY}
+      - key: OLLAMA_API_BASE_URL
+        value: ${OLLAMA_API_BASE_URL}
       - key: TOGETHER_API_KEY
-        fromSecret: TOGETHER_API_KEY
+        value: ${TOGETHER_API_KEY}
       - key: TOGETHER_API_BASE_URL
-        fromSecret: TOGETHER_API_BASE_URL
+        value: ${TOGETHER_API_BASE_URL}
       - key: AWS_BEDROCK_CONFIG
-        fromSecret: AWS_BEDROCK_CONFIG
+        value: ${AWS_BEDROCK_CONFIG}
       - key: VITE_LOG_LEVEL
         value: debug
       - key: DEFAULT_NUM_CTX
         value: 32768
       - key: RUNNING_IN_DOCKER
-        value: true
-    ports:
-      - port: 5173
-        protocol: TCP
-    command: pnpm run dev --host 0.0.0.0
-
-  - name: app-prebuild
-    type: web
-    plan: standard
-    runtime: docker
-    healthCheckPath: /health
-    image: ghcr.io/stackblitz-labs/bolt.diy:latest
-    autoDeploy: false
+        value: "true"
+  - type: web
+    name: bolt-ai-prebuild
+    runtime: node
+    startCommand: pnpm run dockerstart
+    plan: starter
     envVars:
       - key: NODE_ENV
         value: production
@@ -120,10 +102,6 @@ services:
       - key: OLLAMA_API_BASE_URL
         value: http://127.0.0.1:11434
       - key: DEFAULT_NUM_CTX
-        value: "32768"
+        value: 32768
       - key: RUNNING_IN_DOCKER
         value: "true"
-    ports:
-      - port: 5173
-        protocol: TCP
-    command: pnpm run dockerstart
