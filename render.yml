@@ -1,0 +1,124 @@
+services:
+  - name: app-prod
+    type: web
+    env: production
+    build:
+      dockerfilePath: Dockerfile
+      context: .
+      target: bolt-ai-production
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: COMPOSE_PROFILES
+        value: production
+      - key: PORT
+        value: 5173
+      - key: GROQ_API_KEY
+        fromSecret: GROQ_API_KEY
+      - key: HuggingFace_API_KEY
+        fromSecret: HuggingFace_API_KEY
+      - key: OPENAI_API_KEY
+        fromSecret: OPENAI_API_KEY
+      - key: ANTHROPIC_API_KEY
+        fromSecret: ANTHROPIC_API_KEY
+      - key: OPEN_ROUTER_API_KEY
+        fromSecret: OPEN_ROUTER_API_KEY
+      - key: GOOGLE_GENERATIVE_AI_API_KEY
+        fromSecret: GOOGLE_GENERATIVE_AI_API_KEY
+      - key: OLLAMA_API_BASE_URL
+        fromSecret: OLLAMA_API_BASE_URL
+      - key: XAI_API_KEY
+        fromSecret: XAI_API_KEY
+      - key: TOGETHER_API_KEY
+        fromSecret: TOGETHER_API_KEY
+      - key: TOGETHER_API_BASE_URL
+        fromSecret: TOGETHER_API_BASE_URL
+      - key: AWS_BEDROCK_CONFIG
+        fromSecret: AWS_BEDROCK_CONFIG
+      - key: VITE_LOG_LEVEL
+        value: debug
+      - key: DEFAULT_NUM_CTX
+        value: 32768
+      - key: RUNNING_IN_DOCKER
+        value: true
+    ports:
+      - port: 5173
+        protocol: TCP
+    command: pnpm run dockerstart
+
+  - name: app-dev
+    type: web
+    env: development
+    build:
+      dockerfilePath: Dockerfile
+      context: .
+      target: bolt-ai-development
+    envVars:
+      - key: NODE_ENV
+        value: development
+      - key: VITE_HMR_PROTOCOL
+        value: ws
+      - key: VITE_HMR_HOST
+        value: localhost
+      - key: VITE_HMR_PORT
+        value: 5173
+      - key: CHOKIDAR_USEPOLLING
+        value: true
+      - key: WATCHPACK_POLLING
+        value: true
+      - key: PORT
+        value: 5173
+      - key: GROQ_API_KEY
+        fromSecret: GROQ_API_KEY
+      - key: HuggingFace_API_KEY
+        fromSecret: HuggingFace_API_KEY
+      - key: OPENAI_API_KEY
+        fromSecret: OPENAI_API_KEY
+      - key: ANTHROPIC_API_KEY
+        fromSecret: ANTHROPIC_API_KEY
+      - key: OPEN_ROUTER_API_KEY
+        fromSecret: OPEN_ROUTER_API_KEY
+      - key: GOOGLE_GENERATIVE_AI_API_KEY
+        fromSecret: GOOGLE_GENERATIVE_AI_API_KEY
+      - key: OLLAMA_API_BASE_URL
+        fromSecret: OLLAMA_API_BASE_URL
+      - key: XAI_API_KEY
+        fromSecret: XAI_API_KEY
+      - key: TOGETHER_API_KEY
+        fromSecret: TOGETHER_API_KEY
+      - key: TOGETHER_API_BASE_URL
+        fromSecret: TOGETHER_API_BASE_URL
+      - key: AWS_BEDROCK_CONFIG
+        fromSecret: AWS_BEDROCK_CONFIG
+      - key: VITE_LOG_LEVEL
+        value: debug
+      - key: DEFAULT_NUM_CTX
+        value: 32768
+      - key: RUNNING_IN_DOCKER
+        value: true
+    ports:
+      - port: 5173
+        protocol: TCP
+    command: pnpm run dev --host 0.0.0.0
+
+  - name: app-prebuild
+    type: web
+    env: production
+    image: ghcr.io/stackblitz-labs/bolt.diy:latest
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: COMPOSE_PROFILES
+        value: production
+      - key: PORT
+        value: 5173
+      - key: OLLAMA_API_BASE_URL
+        value: http://127.0.0.1:11434
+      - key: DEFAULT_NUM_CTX
+        value: 32768
+      - key: RUNNING_IN_DOCKER
+        value: true
+    ports:
+      - port: 5173
+        protocol: TCP
+    command: pnpm run dockerstart
