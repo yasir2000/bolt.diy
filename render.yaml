@@ -1,61 +1,67 @@
 services:
   - name: app-prod
     type: web
-    env: production
+    plan: standard
+    runtime: docker
+    healthCheckPath: /health
+    buildFilter:
+      paths:
+        - Dockerfile
     build:
-      dockerfilePath: Dockerfile
-      context: .
+      dockerfile: Dockerfile
       target: bolt-ai-production
+    autoDeploy: true
     envVars:
       - key: NODE_ENV
-        value: production
-      - key: COMPOSE_PROFILES
         value: production
       - key: PORT
         value: 5173
       - key: GROQ_API_KEY
-        fromSecret: GROQ_API_KEY
-      - key: HuggingFace_API_KEY
-        fromSecret: HuggingFace_API_KEY
+        sync: false
+      - key: HUGGINGFACE_API_KEY
+        sync: false
       - key: OPENAI_API_KEY
-        fromSecret: OPENAI_API_KEY
+        sync: false
       - key: ANTHROPIC_API_KEY
-        fromSecret: ANTHROPIC_API_KEY
+        sync: false
       - key: OPEN_ROUTER_API_KEY
-        fromSecret: OPEN_ROUTER_API_KEY
+        sync: false
       - key: GOOGLE_GENERATIVE_AI_API_KEY
-        fromSecret: GOOGLE_GENERATIVE_AI_API_KEY
+        sync: false
       - key: OLLAMA_API_BASE_URL
-        fromSecret: OLLAMA_API_BASE_URL
+        sync: false
       - key: XAI_API_KEY
-        fromSecret: XAI_API_KEY
+        sync: false
       - key: TOGETHER_API_KEY
-        fromSecret: TOGETHER_API_KEY
+        sync: false
       - key: TOGETHER_API_BASE_URL
-        fromSecret: TOGETHER_API_BASE_URL
+        sync: false
       - key: AWS_BEDROCK_CONFIG
-        fromSecret: AWS_BEDROCK_CONFIG
+        sync: false
       - key: VITE_LOG_LEVEL
         value: debug
       - key: DEFAULT_NUM_CTX
-        value: 32768
+        value: "32768"
       - key: RUNNING_IN_DOCKER
-        value: true
-    ports:
-      - port: 5173
-        protocol: TCP
-    command: pnpm run dockerstart
+        value: "true"
 
   - name: app-dev
     type: web
-    env: development
+    plan: standard
+    runtime: docker
+    healthCheckPath: /health
+    buildFilter:
+      paths:
+        - Dockerfile
     build:
-      dockerfilePath: Dockerfile
-      context: .
+      dockerfile: Dockerfile
       target: bolt-ai-development
+    autoDeploy: false
     envVars:
       - key: NODE_ENV
         value: development
+      - key: PORT
+        value: 5173
       - key: VITE_HMR_PROTOCOL
         value: ws
       - key: VITE_HMR_HOST
@@ -66,8 +72,6 @@ services:
         value: true
       - key: WATCHPACK_POLLING
         value: true
-      - key: PORT
-        value: 5173
       - key: GROQ_API_KEY
         fromSecret: GROQ_API_KEY
       - key: HuggingFace_API_KEY
@@ -103,21 +107,22 @@ services:
 
   - name: app-prebuild
     type: web
-    env: production
+    plan: standard
+    runtime: docker
+    healthCheckPath: /health
     image: ghcr.io/stackblitz-labs/bolt.diy:latest
+    autoDeploy: false
     envVars:
       - key: NODE_ENV
-        value: production
-      - key: COMPOSE_PROFILES
         value: production
       - key: PORT
         value: 5173
       - key: OLLAMA_API_BASE_URL
         value: http://127.0.0.1:11434
       - key: DEFAULT_NUM_CTX
-        value: 32768
+        value: "32768"
       - key: RUNNING_IN_DOCKER
-        value: true
+        value: "true"
     ports:
       - port: 5173
         protocol: TCP
